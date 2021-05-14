@@ -14,6 +14,7 @@ import (
 const (
 	ContentTypeKey  = "content-type"
 	Cors            = "Access-Control-Allow-Origin"
+	CorsHeaders     = "Access-Control-Allow-Headers"
 	ApplicationJson = "application/json"
 )
 
@@ -52,6 +53,7 @@ func ApplicationJsonInterceptor() MiddlewareInterceptor {
 
 func AuthenticationInterceptor() MiddlewareInterceptor {
 	return func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+		w.Header().Add(CorsHeaders, "authorization")
 		secret := os.Getenv("CLIENT_SECRET")
 		err := Authenticate(r, secret)
 		if err != nil {
