@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -61,7 +62,12 @@ func AuthenticationInterceptor() MiddlewareInterceptor {
 	}
 }
 
-func CreateToken(username string, secret string, expiry int) (string, error) {
+func CreateToken(username string) (string, error) {
+	secret := os.Getenv("CLIENT_SECRET")
+	expiry, err := strconv.Atoi(os.Getenv("TOKEN_EXPIRE_MINUTES"))
+	if err != nil {
+		return "", err
+	}
 	expireTime := time.Minute * time.Duration(expiry)
 	claims := jwt.MapClaims{}
 	claims["userName"] = username
