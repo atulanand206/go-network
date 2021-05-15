@@ -49,16 +49,11 @@ func (chain MiddlewareChain) Handler(handler http.HandlerFunc) http.HandlerFunc 
 	return http.HandlerFunc(curr)
 }
 
-func CorsMethodInterceptor(methods string) MiddlewareInterceptor {
-	return func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-		w.Header().Set(CorsMethods, methods)
-		next(w, r)
-	}
-}
-
-func CorsAllInterceptor() MiddlewareInterceptor {
+func CorsInterceptor(methods string) MiddlewareInterceptor {
 	return func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 		w.Header().Set(CorsOrigin, os.Getenv(ValueCorsOrigin))
+		w.Header().Set(CorsMethods, methods)
+		w.Header().Add(CorsHeaders, Authorization)
 		next(w, r)
 	}
 }
@@ -72,7 +67,6 @@ func ApplicationJsonInterceptor() MiddlewareInterceptor {
 
 func AuthenticationInterceptor() MiddlewareInterceptor {
 	return func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-		w.Header().Add(CorsHeaders, Authorization)
 		secret := os.Getenv(ClientSecret)
 		err := Authenticate(r, secret)
 		if err != nil {
