@@ -21,9 +21,12 @@ const (
 	ApplicationJson = "application/json"
 	Authorization   = "Authorization"
 
-	ClientSecret       = "CLIENT_SECRET"
-	TokenExpireMinutes = "TOKEN_EXPIRE_MINUTES"
-	ValueCorsOrigin    = "CORS_ORIGIN"
+	ValueCorsOrigin = "CORS_ORIGIN"
+
+	ClientSecret              = "CLIENT_SECRET"
+	TokenExpireMinutes        = "TOKEN_EXPIRE_MINUTES"
+	RefreshClientSecret       = "REFRESH_CLIENT_SECRET"
+	RefreshTokenExpireMinutes = "REFRESH_TOKEN_EXPIRE_MINUTES"
 )
 
 type MiddlewareInterceptor func(http.ResponseWriter, *http.Request, http.HandlerFunc)
@@ -77,9 +80,16 @@ func AuthenticationInterceptor() MiddlewareInterceptor {
 	}
 }
 
-func CreateToken(username string) (string, error) {
-	secret := os.Getenv(ClientSecret)
-	expiry, err := strconv.Atoi(os.Getenv(TokenExpireMinutes))
+func CreateAccessToken(username string) (string, error) {
+	return CreateToken(username, os.Getenv(ClientSecret), os.Getenv(TokenExpireMinutes))
+}
+
+func CreateRefreshToken(username string) (string, error) {
+	return CreateToken(username, os.Getenv(RefreshClientSecret), os.Getenv(RefreshTokenExpireMinutes))
+}
+
+func CreateToken(username string, secret string, expires string) (string, error) {
+	expiry, err := strconv.Atoi(expires)
 	if err != nil {
 		return "", err
 	}
@@ -93,6 +103,14 @@ func CreateToken(username string) (string, error) {
 		return "", err
 	}
 	return token, nil
+}
+
+func AuthenticateAccessToken(r *http.Request) error {
+	return Authenticate(r, os.Getenv(ClientSecret))
+}
+
+func AuthenticateRefreshToken(r *http.Request) error {
+	return Authenticate(r, os.Getenv(RefreshClientSecret))
 }
 
 func Authenticate(r *http.Request, secret string) error {
