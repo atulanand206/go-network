@@ -30,6 +30,10 @@ type MiddlewareInterceptor func(http.ResponseWriter, *http.Request, http.Handler
 type MiddlewareHandlerFunc http.HandlerFunc
 type MiddlewareChain []MiddlewareInterceptor
 
+func (mwc MiddlewareChain) Add(interceptor ...MiddlewareInterceptor) MiddlewareChain {
+	return append(mwc, interceptor...)
+}
+
 func (continuation MiddlewareHandlerFunc) Intercept(mw MiddlewareInterceptor) MiddlewareHandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		mw(writer, request, http.HandlerFunc(continuation))
