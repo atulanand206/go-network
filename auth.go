@@ -109,24 +109,22 @@ func RefreshAuthenticationInterceptor() MiddlewareInterceptor {
 }
 
 // Creates the access token for the username.
-func CreateAccessToken(username string) (string, error) {
-	return CreateToken(username, os.Getenv(ClientSecret), os.Getenv(TokenExpireMinutes))
+func CreateAccessToken(claims jwt.MapClaims) (string, error) {
+	return CreateToken(claims, os.Getenv(ClientSecret), os.Getenv(TokenExpireMinutes))
 }
 
 // Creates the refresh token for the username.
-func CreateRefreshToken(username string) (string, error) {
-	return CreateToken(username, os.Getenv(RefreshClientSecret), os.Getenv(RefreshTokenExpireMinutes))
+func CreateRefreshToken(claims jwt.MapClaims) (string, error) {
+	return CreateToken(claims, os.Getenv(RefreshClientSecret), os.Getenv(RefreshTokenExpireMinutes))
 }
 
 // Creates the jwt token for the given parameters.
-func CreateToken(username string, secret string, expires string) (string, error) {
+func CreateToken(claims jwt.MapClaims, secret string, expires string) (string, error) {
 	expiry, err := strconv.Atoi(expires)
 	if err != nil {
 		return "", err
 	}
 	expireTime := time.Minute * time.Duration(expiry)
-	claims := jwt.MapClaims{}
-	claims["username"] = username
 	claims["expires"] = time.Now().Add(expireTime).Unix()
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	token, err := at.SignedString([]byte(secret))
