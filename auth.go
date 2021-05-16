@@ -125,7 +125,8 @@ func CreateToken(claims jwt.MapClaims, secret string, expires string) (string, e
 		return "", err
 	}
 	expireTime := time.Minute * time.Duration(expiry)
-	claims["expires"] = time.Now().Add(expireTime).Unix()
+	claims["issuedAt"] = time.Now()
+	claims["expiresAt"] = time.Now().Add(expireTime).Unix()
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	token, err := at.SignedString([]byte(secret))
 	if err != nil {
