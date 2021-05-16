@@ -136,28 +136,32 @@ func CreateToken(claims jwt.MapClaims, secret string, expires string) (string, e
 }
 
 // Authenticates the access token present in the request headers.
-func AuthenticateAccessToken(r *http.Request) (jwt.Claims, error) {
+func AuthenticateAccessToken(r *http.Request) (jwt.MapClaims, error) {
 	return Authenticate(r, os.Getenv(ClientSecret))
 }
 
 // Authenticates the refresh token present in the request headers.
-func AuthenticateRefreshToken(r *http.Request) (jwt.Claims, error) {
+func AuthenticateRefreshToken(r *http.Request) (jwt.MapClaims, error) {
 	return Authenticate(r, os.Getenv(RefreshClientSecret))
 }
 
 // Authenticates the jwt token with the given secret.
-func Authenticate(r *http.Request, secret string) (jwt.Claims, error) {
+func Authenticate(r *http.Request, secret string) (jwt.MapClaims, error) {
 	bearerToken := r.Header.Get(Authorization)
 	split := strings.Split(bearerToken, " ")
 	if len(split) == 2 {
 		tokenString := split[1]
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		claims := jwt.MapClaims{}
+		_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
-			return token.Claims, nil
+			return []byte(secret), nil
 		})
-		return token.Claims, err
+		if err != nil {
+			return nil, err
+		}
+		return claims, err
 	}
 	return nil, fmt.Errorf("token not available")
 }
