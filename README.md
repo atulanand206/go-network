@@ -4,6 +4,12 @@
 
 A library exposing an implementation of tools usually required for communicating with RESTFul requests. You can find intercepting and authenticating middlewares as well as methods to authenticate jwt tokens. There are some utility methods for extracting values from request's query parameters as well.
 
+## Learning outcomes
+- Create and verify JWT Tokens using a client secret key.
+- Build authentication services using access and refresh token using a client secret key and encrypt information in the token for specific purposes.
+- Customize middleware interceptor chain to authenticate and scope network requests.
+- Restrict network requests using Cross-origin resource sharing policies.
+
 ## Installation
 
 The recommended way to get started using the Network driver is by using go modules to install the dependency in your project. This can be done either by importing packages from [go-network](github.com/atulanand206/go-network) and having the build step install the dependency or by explicitly running
