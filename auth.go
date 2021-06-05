@@ -70,7 +70,7 @@ func CorsInterceptor(methods string) MiddlewareInterceptor {
 		w.Header().Set(CorsOrigin, os.Getenv(ValueCorsOrigin))
 		w.Header().Set(CorsMethods, methods)
 		w.Header().Add(CorsHeaders, Authorization)
-		if r.Method == http.MethodPost {
+		if methods == http.MethodPost {
 			w.Header().Add(CorsHeaders, ContentTypeKey)
 		}
 		if r.Method != http.MethodOptions {
